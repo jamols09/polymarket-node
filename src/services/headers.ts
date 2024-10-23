@@ -52,6 +52,10 @@ export const createL2Headers = async (
 	timestamp?: number
 ): Promise<any> => {
 	const address = await signer.getAddress();
+	let ts = Math.floor(Date.now() / 1000);
+	if (timestamp == undefined) {
+		timestamp = ts;
+	}
 
 	const sig = buildPolyHmacSignature(
 		creds.secret,

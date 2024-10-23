@@ -5,10 +5,12 @@ import cors from "cors"; // used for cross-origin requests
 import { notFoundMiddleware } from "./middleware";
 import routes from "./routes";
 import 'dotenv/config';
+import cookieParser from "cookie-parser";
 
 const PORT = process.env.PORT || 5008;
 const server = express();
 
+server.use(cookieParser()); // parse cookies
 server.use(morgan("dev")); // log requests to the console
 server.use(cors()); // enable cross-origin requests
 server.use(express.json()); // parse requests of content-type - application/json

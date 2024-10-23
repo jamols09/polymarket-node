@@ -7,7 +7,19 @@ export interface PolymarketAPIResponse {
 	passphrase: string;
 }
 
+export interface ApiKeyRaw {
+    apiKey: string;
+    secret: string;
+    passphrase: string;
+}
+
 export interface ApiKeyCreds {
+	key: string;
+	secret: string;
+	passphrase: string;
+}
+
+export interface ApiCreds {
 	key: string;
 	secret: string;
 	passphrase: string;

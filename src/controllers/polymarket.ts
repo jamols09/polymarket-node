@@ -2,9 +2,14 @@ import { JsonRpcProvider } from "@ethersproject/providers";
 import { Wallet } from "@ethersproject/wallet";
 import { createL1Headers, createL2Headers } from "../services/headers";
 import { Request, Response } from "express";
-import { deriveApiKeys } from "../api/polymarket";
-import Cookies from "js-cookie";
-import { L1PolyHeader } from "../schema/interfaces";
+import { deriveApiKeys, authAPI } from "../api/polymarket";
+
+import {
+	ApiCreds,
+	ApiKeyCreds,
+	ApiKeyRaw,
+	L1PolyHeader,
+} from "../schema/interfaces";
 
 class Polymarket {
 	private provider: JsonRpcProvider;
@@ -34,13 +39,8 @@ class Polymarket {
 				this.wallet,
 				this.chainId,
 				this.nonce,
-				this.timestamp
+				(this.timestamp = Math.floor(Date.now() / 1000))
 			);
-
-			Cookies.set("POLY_ADDRESS", l1Header.POLY_ADDRESS);
-			Cookies.set("POLY_SIGNATURE", l1Header.POLY_SIGNATURE);
-			Cookies.set("POLY_TIMESTAMP", l1Header.POLY_TIMESTAMP);
-			Cookies.set("POLY_NONCE", l1Header.POLY_NONCE);
 
 			res.status(200).json(l1Header);
 		} catch (error) {
@@ -55,32 +55,163 @@ class Polymarket {
 	// This method is used to get the L2 headers
 	public async getL2HeadersController(req: Request, res: Response) {
 		try {
-            
-			// Get API key credentials from the request
-			const apiKeys = await deriveApiKeys({
-				POLY_ADDRESS: Cookies.get("POLY_ADDRESS") || "",
-				POLY_SIGNATURE: Cookies.get("POLY_SIGNATURE") || "",
-				POLY_TIMESTAMP: Cookies.get("POLY_TIMESTAMP") || "",
-				POLY_NONCE: Cookies.get("POLY_NONCE") || "",
+			// We form the apiKeys object
+			const apiKeys: ApiKeyCreds = {
+				key: req.cookies.POLY_API_KEY,
+				secret: req.cookies.POLY_SECRET,
+				passphrase: req.cookies.POLY_PASSPHRASE,
+			};
+
+			const l2Header = await createL2Headers(this.wallet, apiKeys, {
+				method: "get",
+				requestPath: "/order",
 			});
 
-			const l2Header = await createL2Headers(
+			res.status(200).json(l2Header);
+		} catch (error) {
+			if (error instanceof Error) {
+				res.status(500).json({ error: error.message });
+			} else {
+				res.status(500).json({ error: "An unknown error occurred" });
+			}
+		}
+	}
+
+	// This method will create API key
+	public async createApiKeysController(req: Request, res: Response) {
+		try {
+			const headerArgs = {
+				method: "POST",
+				requestPath: "/auth/api-key",
+			};
+
+			const l1Header = await createL1Headers(
 				this.wallet,
-				{
-					key: "358e6058-faf5-7aa1-2f92-ae3b1c0ecdaa",
-					secret: "kcJ0zD7nwBZVr1Gykiy0teTfTSoNASOYIfno7hXgpzk=",
-					passphrase:
-						"52b9a13330a8cee99097f137d0883c16e4592f14d40ee566f4007cae7df7db86",
-				},
-				{
-					method: "get",
-					requestPath: "/order",
-				}
+				this.chainId,
+				this.nonce,
+				Math.floor(Date.now() / 1000)
 			);
 
-			res.status(200).json(l2Header);
-		} catch (error) {}
+			const apiResponse = await authAPI(l1Header, headerArgs);
+
+			// We save the key, secret and passphrase in the cookies
+			res.cookie("POLY_API_KEY", apiResponse.apiKey);
+			res.cookie("POLY_SECRET", apiResponse.secret);
+			res.cookie("POLY_PASSPHRASE", apiResponse.passphrase);
+			res.cookie("POLY_NONCE", this.nonce.toString());
+
+			res.status(200).json(apiResponse);
+		} catch (error) {
+			if (error instanceof Error) {
+				res.status(500).json({ error: error.message });
+			} else {
+				res.status(500).json({ error: "Cannot derive API Keys" });
+			}
+		}
+	}
+
+	// This method is used to get existing api key for an address and nonce
+	public async deriveApiKeyController(req: Request, res: Response) {
+		try {
+            
+			// Get API key credentials from the request cookies
+			const l1Header: L1PolyHeader = await createL1Headers(
+				this.wallet,
+				this.chainId,
+				this.nonce,
+				(this.timestamp = Math.floor(Date.now() / 1000))
+			);
+
+			const apiResponse: ApiKeyRaw = await deriveApiKeys(l1Header);
+
+			// We save the key, secret and passphrase in the cookies
+			res.cookie("POLY_API_KEY", apiResponse.apiKey);
+			res.cookie("POLY_SECRET", apiResponse.secret);
+			res.cookie("POLY_PASSPHRASE", apiResponse.passphrase);
+			res.cookie("POLY_NONCE", this.nonce.toString());
+
+			res.status(200).json(apiResponse);
+		} catch (error) {
+			if (error instanceof Error) {
+				res.status(500).json({ error: error.message });
+			} else {
+				res.status(500).json({ error: "Cannot derive API Keys" });
+			}
+		}
+	}
+
+	// This method is used to get the API keys associated with a Polygon address.
+	public async getApiKeysController(req: Request, res: Response) {
+		try {
+			const headerArgs = {
+				method: "GET",
+				requestPath: "/auth/api-keys",
+			};
+
+			// We form the api keys object
+			const apiKeys: ApiCreds = {
+				key: req.cookies.POLY_API_KEY,
+				secret: req.cookies.POLY_SECRET,
+				passphrase: req.cookies.POLY_PASSPHRASE,
+			};
+			// We get the headers
+			const l2Header = await createL2Headers(
+				this.wallet,
+				apiKeys,
+				headerArgs,
+				(this.timestamp = Math.floor(Date.now() / 1000))
+			);
+
+            
+			// We get the API keys
+			const retrievedApiKeys = await authAPI(l2Header, headerArgs);
+
+			res.status(200).json(retrievedApiKeys);
+		} catch (error) {
+			if (error instanceof Error) {
+				res.status(500).json({ error: error.message });
+			} else {
+				res.status(500).json({ error: "Cannot derive API Keys" });
+			}
+		}
+	}
+
+	// This method is used to get the API keys associated with a Polygon address.
+	public async deleteApiKeysController(req: Request, res: Response) {
+		try {
+			const headerArgs = {
+				method: "DELETE",
+				requestPath: "/auth/api-key",
+			};
+
+			// We form the apiKeys object
+			const apiKeys: ApiCreds = {
+				key: req.cookies.POLY_API_KEY,
+				secret: req.cookies.POLY_SECRET,
+				passphrase: req.cookies.POLY_PASSPHRASE,
+			};
+			// We get the headers
+			const l2Header = await createL2Headers(
+				this.wallet,
+				apiKeys,
+				headerArgs,
+				(this.timestamp = Math.floor(Date.now() / 1000))
+			);
+
+			// We get the API keys
+			const retrievedApiKeys = await authAPI(l2Header, headerArgs);
+
+			res.status(200).json(retrievedApiKeys);
+		} catch (error) {
+			if (error instanceof Error) {
+				res.status(500).json({ error: error.message });
+			} else {
+				res.status(500).json({ error: "Cannot derive API Keys" });
+			}
+		}
 	}
 }
+
+
 
 export default Polymarket;

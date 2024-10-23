@@ -18,4 +18,24 @@ routes.get("/l2-header", async (req: Request, res: Response) => {
 	polymarket.getL2HeadersController(req, res);
 });
 
+// Create API Keys
+routes.post("/create-api-key", async (req: Request, res: Response) => {
+    polymarket.createApiKeysController(req, res);
+});
+
+// Derive API Key
+routes.get("/derive-api-key", async (req: Request, res: Response) => {
+	polymarket.deriveApiKeyController(req, res);
+});
+
+// Get API Keys
+routes.get("/get-api-keys", async (req: Request, res: Response) => {
+    polymarket.getApiKeysController(req, res);
+});
+
+// Delete API Keys
+routes.delete("/delete-api-keys", async (req: Request, res: Response) => {
+    polymarket.deleteApiKeysController(req, res);
+});
+
 export default routes;
