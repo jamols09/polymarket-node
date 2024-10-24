@@ -38,4 +38,21 @@ routes.delete("/delete-api-keys", async (req: Request, res: Response) => {
     polymarket.deleteApiKeysController(req, res);
 });
 
+// Get Events
+routes.get("/events", async (req: Request, res: Response) => {
+    polymarket.getEventsController(req, res);
+});
+
+// Get Markets
+routes.get("/markets", async (req: Request, res: Response) => {
+    polymarket.getMarketsController(req, res);
+});
+
+// SAMPLE POTENTIAL RETURN
+routes.get("/sample-potential-return", async (req: Request, res: Response) => {
+    polymarket.samplePotentialReturn(req, res);
+});
+
+
+
 export default routes;

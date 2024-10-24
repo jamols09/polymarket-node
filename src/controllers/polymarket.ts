@@ -2,7 +2,13 @@ import { JsonRpcProvider } from "@ethersproject/providers";
 import { Wallet } from "@ethersproject/wallet";
 import { createL1Headers, createL2Headers } from "../services/headers";
 import { Request, Response } from "express";
-import { deriveApiKeys, authAPI } from "../api/polymarket";
+import {
+	deriveApiKeys,
+	authAPI,
+	samplePotentialReturn,
+	eventsAPI,
+	marketsAPI,
+} from "../api/polymarket";
 
 import {
 	ApiCreds,
@@ -10,6 +16,7 @@ import {
 	ApiKeyRaw,
 	L1PolyHeader,
 } from "../schema/interfaces";
+import { calculateProfit } from "../services/profits";
 
 class Polymarket {
 	private provider: JsonRpcProvider;
@@ -113,7 +120,6 @@ class Polymarket {
 	// This method is used to get existing api key for an address and nonce
 	public async deriveApiKeyController(req: Request, res: Response) {
 		try {
-            
 			// Get API key credentials from the request cookies
 			const l1Header: L1PolyHeader = await createL1Headers(
 				this.wallet,
@@ -162,7 +168,6 @@ class Polymarket {
 				(this.timestamp = Math.floor(Date.now() / 1000))
 			);
 
-            
 			// We get the API keys
 			const retrievedApiKeys = await authAPI(l2Header, headerArgs);
 
@@ -210,8 +215,56 @@ class Polymarket {
 			}
 		}
 	}
+
+	////////////////////////////////////////////////////////// THIS IS A SAMPLE METHOD
+	public async samplePotentialReturn(req: Request, res: Response) {
+		try {
+			const response = await samplePotentialReturn(
+				`https://clob.polymarket.com/markets/0x12a0cb60174abc437bf1178367c72d11f069e1a3add20b148fb0ab4279b772b2`
+			);
+
+			res.status(200).json(response);
+		} catch (error) {
+			if (error instanceof Error) {
+				res.status(500).json({ error: error.message });
+			} else {
+				res.status(500).json({ error: "Cannot derive API Keys" });
+			}
+		}
+	}
+	///////////////////////////////////////////////////////// THIS IS A SAMPLE METHOD
+
+	// This method is used to get the events
+	public async getEventsController(req: Request, res: Response) {
+		try {
+			const events = await eventsAPI(req.query);
+			res.status(200).json(events);
+		} catch (error) {
+			if (error instanceof Error) {
+				res.status(500).json({ error: error.message });
+			} else {
+				res.status(500).json({ error: "Cannot get events" });
+			}
+		}
+	}
+
+	// This method is used to get the markets
+	public async getMarketsController(req: Request, res: Response) {
+		try {
+			const markets = await marketsAPI(req.query);
+			const profits = calculateProfit(markets);
+			// res.status(200).json(markets);
+            res.status(200).json(profits);
+		} catch (error) {
+			if (error instanceof Error) {
+				res.status(500).json({ error: error.message });
+			} else {
+				res.status(500).json({ error: "Cannot get markets" });
+			}
+		}
+	}
+
+	// This method is used to get the markets
 }
-
-
 
 export default Polymarket;

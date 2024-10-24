@@ -5,6 +5,12 @@ import {
 	L1PolyHeader,
 	PolymarketAPIResponse,
 } from "../schema/interfaces";
+import {
+	calculateReturns,
+	probabilityToAmericanOdds,
+	probabilityToDecimalOdds,
+} from "../utils/calculations";
+import exp from "constants";
 
 axios.defaults.withCredentials = true;
 
@@ -28,7 +34,7 @@ export const deriveApiKeys = async (
 		};
 	} catch (error: any) {
 		console.error("Error making request:", error.message);
-        throw new Error("Failed to make request");
+		throw new Error("Failed to make request");
 	}
 };
 
@@ -60,5 +66,87 @@ export const authAPI = async (
 	} catch (error: any) {
 		console.error("Error making request:", error.message);
 		throw new Error("Failed to make request");
+	}
+};
+
+// This function is used to get the list of markets in the events
+export const eventsAPI = async (query: any) => {
+	try {
+		const params = new URLSearchParams(query as Record<string, string>);
+		const url = `https://gamma-api.polymarket.com/events?${params.toString()}`;
+		const result: AxiosResponse<any> = await axios.get<any>(url);
+
+		return result.data;
+	} catch (error: any) {
+		console.error("Error making request:", error.message);
+		throw new Error("Failed to make request");
+	}
+};
+
+// This function is used to get the list of markets
+export const marketsAPI = async (query: any) => {
+	try {
+		const params = new URLSearchParams(query as Record<string, string>);
+		const url = `https://gamma-api.polymarket.com/markets?${params.toString()}`;
+		const result: AxiosResponse<any> = await axios.get<any>(url);
+
+		return result.data;
+	} catch (error: any) {
+		console.error("Error making request:", error.message);
+		throw new Error("Failed to make request");
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+interface Token {
+	outcome: string;
+	price: number;
+	winner: boolean;
+}
+
+interface MarketResponse {
+	tokens: Token[];
+}
+
+export const samplePotentialReturn = async (url: string) => {
+	try {
+		const response = await axios.get<MarketResponse>(
+			"https://clob.polymarket.com/markets/0x26ee82bee2493a302d21283cb578f7e2fff2dd15743854f53034d12420863b55"
+		);
+
+		console.log(response.data);
+
+		// Extract the 'Yes' outcome's price
+		const yesToken = response.data.tokens.find(
+			(token) => token.outcome === "Republican"
+		);
+        
+		if (!yesToken) {
+			throw new Error('No "Yes" outcome found in the market data.');
+		}
+
+		const price = yesToken.price;
+		console.log(`Price (Probability): ${price}`);
+
+		// Convert to Decimal and American odds
+		const decimalOdds = probabilityToDecimalOdds(price);
+		const americanOdds = probabilityToAmericanOdds(price);
+
+		console.log(`Decimal Odds: ${decimalOdds}`);
+		console.log(
+			`American Odds: ${americanOdds > 0 ? `+${americanOdds}` : americanOdds}`
+		);
+
+		// Calculate returns for a $10 bet
+		const betAmount = 10;
+		const { potentialReturn, potentialProfit } = calculateReturns(
+			betAmount,
+			decimalOdds
+		);
+
+		console.log(`Potential Profit: $${potentialProfit.toFixed(2)}`);
+		console.log(`Total Return: $${potentialReturn.toFixed(2)}`);
+	} catch (error) {
+		console.error("Error fetching market data:", error);
 	}
 };
