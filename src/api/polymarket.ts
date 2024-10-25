@@ -4,7 +4,7 @@ import {
 	L2PolyHeader,
 	L1PolyHeader,
 	PolymarketAPIResponse,
-} from "../schema/interfaces";
+} from "../schema/polymarket";
 import {
 	calculateReturns,
 	probabilityToAmericanOdds,

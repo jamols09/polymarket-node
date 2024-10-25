@@ -15,8 +15,8 @@ import {
 	ApiKeyCreds,
 	ApiKeyRaw,
 	L1PolyHeader,
-} from "../schema/interfaces";
-import { calculateProfit } from "../services/profits";
+} from "../schema/polymarket";
+import { calculateEventProfit, calculateMarketProfit } from "../services/profits";
 
 class Polymarket {
 	private provider: JsonRpcProvider;
@@ -238,7 +238,8 @@ class Polymarket {
 	public async getEventsController(req: Request, res: Response) {
 		try {
 			const events = await eventsAPI(req.query);
-			res.status(200).json(events);
+            const profits = await calculateEventProfit(events);
+			res.status(200).json(profits);
 		} catch (error) {
 			if (error instanceof Error) {
 				res.status(500).json({ error: error.message });
@@ -252,9 +253,9 @@ class Polymarket {
 	public async getMarketsController(req: Request, res: Response) {
 		try {
 			const markets = await marketsAPI(req.query);
-			const profits = calculateProfit(markets);
+			const profits = calculateMarketProfit(markets);
 			// res.status(200).json(markets);
-            res.status(200).json(profits);
+			res.status(200).json(profits);
 		} catch (error) {
 			if (error instanceof Error) {
 				res.status(500).json({ error: error.message });

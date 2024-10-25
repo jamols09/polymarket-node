@@ -2,8 +2,8 @@
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { Wallet } from "@ethersproject/wallet";
 import { buildClobEip712Signature } from "../utils/eip712";
-import type { ApiKeyCreds, L2HeaderArgs } from "../schema/interfaces";
-import type { L2PolyHeader } from "../schema/interfaces";
+import type { ApiKeyCreds, L2HeaderArgs } from "../schema/polymarket";
+import type { L2PolyHeader } from "../schema/polymarket";
 import { buildPolyHmacSignature } from "../utils/hmac";
 
 /**

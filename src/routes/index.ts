@@ -48,6 +48,8 @@ routes.get("/markets", async (req: Request, res: Response) => {
     polymarket.getMarketsController(req, res);
 });
 
+
+
 // SAMPLE POTENTIAL RETURN
 routes.get("/sample-potential-return", async (req: Request, res: Response) => {
     polymarket.samplePotentialReturn(req, res);
