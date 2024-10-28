@@ -254,7 +254,6 @@ class Polymarket {
 		try {
 			const markets = await marketsAPI(req.query);
 			const profits = calculateMarketProfit(markets);
-			// res.status(200).json(markets);
 			res.status(200).json(profits);
 		} catch (error) {
 			if (error instanceof Error) {
