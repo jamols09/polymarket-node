@@ -40,6 +40,7 @@ export const calculateMarketProfit = (
 		outcomePrices: [],
 		odds: [],
 		potentialReturns: [],
+        icon: "",
 	};
 
 	// Loop through the data and parse the outcomes and outcomePrices
@@ -54,6 +55,7 @@ export const calculateMarketProfit = (
 		potentialReturnData.slug = market.slug;
         potentialReturnData.startDate = market.startDate;
         potentialReturnData.endDate = market.endDate;
+        potentialReturnData.icon = market.icon;
 	});
 
 	// Insert the odds into the potentialReturn object
@@ -111,6 +113,7 @@ export const calculateEventProfit = (
 				startDate: market.startDate,
 				endDate: market.endDate,
 				spread: market.spread,
+                icon: market.icon,
 			};
 
 			potentialEventReturns.push(potentialEventReturn);

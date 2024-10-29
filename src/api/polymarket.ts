@@ -10,7 +10,6 @@ import {
 	probabilityToAmericanOdds,
 	probabilityToDecimalOdds,
 } from "../utils/calculations";
-import exp from "constants";
 
 axios.defaults.withCredentials = true;
 

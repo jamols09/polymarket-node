@@ -19,6 +19,7 @@ export interface PotentialReturnData {
     slug: string;
     startDate: string;
     endDate: string;
+    icon?: string;
 }
 
 export interface MarketData {
@@ -29,6 +30,7 @@ export interface MarketData {
 	marketId: number;
 	outcomes: string;
 	outcomePrices: string;
+    icon?: string;
 	// Other properties can be added here
 }
 
@@ -44,6 +46,7 @@ export interface EventMarketData {
 	startDate: string;
 	endDate: string;
 	spread: number;
+    icon?: string;
 }
 
 export interface PotentialEventReturnData {
@@ -56,4 +59,5 @@ export interface PotentialEventReturnData {
 	startDate: string;
 	endDate: string;
 	spread: number;
+    icon?: string;
 }
