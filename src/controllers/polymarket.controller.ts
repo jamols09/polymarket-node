@@ -264,7 +264,6 @@ class Polymarket {
 			}
 		}
 	}
-
 }
 
 export default Polymarket;

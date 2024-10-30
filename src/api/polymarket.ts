@@ -71,10 +71,11 @@ export const authAPI = async (
 // This function is used to get the list of markets in the events
 export const eventsAPI = async (query: any) => {
 	try {
+        
 		const params = new URLSearchParams(query as Record<string, string>);
 		const url = `https://gamma-api.polymarket.com/events?${params.toString()}`;
 		const result: AxiosResponse<any> = await axios.get<any>(url);
-
+       
 		return result.data;
 	} catch (error: any) {
 		console.error("Error making request:", error.message);
@@ -119,7 +120,7 @@ export const samplePotentialReturn = async (url: string) => {
 		const yesToken = response.data.tokens.find(
 			(token) => token.outcome === "Republican"
 		);
-        
+
 		if (!yesToken) {
 			throw new Error('No "Yes" outcome found in the market data.');
 		}

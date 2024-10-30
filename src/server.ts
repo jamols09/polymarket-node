@@ -6,6 +6,9 @@ import cors from "cors";
 import cron from "node-cron";
 import { dbconnect } from "./services/mongodb/mongodb.service";
 
+// Import the cron job
+import { geneRateCronJob } from "./services/cronjob/polymarket.cronjob";
+
 // Initialize Port
 const PORT = process.env.PORT || 5002;
 // Initialize express
@@ -26,12 +29,10 @@ server.listen(PORT, () => {
 	console.log(`PORT --> ${PORT}`);
 });
 
-const geneRateCronJob = () => {
-	console.log("Generating target reports");
-	console.log("HELLO WORLD");
-};
-
-// Run cronjob every 1 minute
-cron.schedule("* * * * *", geneRateCronJob);
+/*
+ * This cron job will run every 10 minutes
+ * This is where you will put the code to generate the target reports
+ */
+cron.schedule("10 * * * *", geneRateCronJob);
 
 export default server;
