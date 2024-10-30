@@ -28,6 +28,7 @@ class Polymarket {
 	constructor() {
 		// if no private key is set this will throw an error
 		const privateKey = process.env.PRIVATE_KEY;
+        
 		if (!privateKey) {
 			throw new Error("PRIVATE_KEY is not defined");
 		}

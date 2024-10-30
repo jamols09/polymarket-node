@@ -1,27 +1,37 @@
 import "dotenv/config";
-import express from "express";
-import morgan from "morgan"; // used for logging
-import cors from "cors"; // used for cross-origin requests
-import { notFoundMiddleware } from "./middleware";
 import routes from "./routes";
-import 'dotenv/config';
-import cookieParser from "cookie-parser";
+import express from "express";
+import morgan from "morgan";
+import cors from "cors";
+import cron from "node-cron";
+import { dbconnect } from "./services/mongodb/mongodb.service";
 
-const PORT = process.env.PORT || 5008;
+// Initialize Port
+const PORT = process.env.PORT || 5002;
+// Initialize express
 const server = express();
 
-server.use(cookieParser()); // parse cookies
-server.use(morgan("dev")); // log requests to the console
-server.use(cors()); // enable cross-origin requests
-server.use(express.json()); // parse requests of content-type - application/json
-server.use(express.urlencoded({ extended: true })); // parse requests of content-type - application/x-www-form-urlencoded
+dbconnect();
 
-server.use(routes); // add the routes to the server with prefix "/api"
+server.use(morgan("dev"));
+server.use(cors());
+server.use(express.json());
+server.use(express.urlencoded({ extended: true }));
 
-server.use(notFoundMiddleware); // handle 404 errors with custom middleware or
+// Initialize the routes
+server.use("", routes);
 
+// Start the server
 server.listen(PORT, () => {
-	console.log(`Server is running on http://localhost:${PORT}`); // log the server URL to the console
+	console.log(`PORT --> ${PORT}`);
 });
+
+const geneRateCronJob = () => {
+	console.log("Generating target reports");
+	console.log("HELLO WORLD");
+};
+
+// Run cronjob every 1 minute
+cron.schedule("* * * * *", geneRateCronJob);
 
 export default server;

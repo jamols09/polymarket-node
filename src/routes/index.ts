@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import Polymarket from "../controllers/polymarket";
+import Polymarket from "../controllers/polymarket.controller";
 
 const routes = Router();
 const polymarket = new Polymarket(); // Create a single instance of Polymarket
