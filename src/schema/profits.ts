@@ -19,6 +19,8 @@ export interface PotentialReturnData {
     slug: string;
     startDate: string;
     endDate: string;
+    betAmount: number;
+    conditionId: string;
     icon?: string;
 }
 
@@ -30,6 +32,7 @@ export interface MarketData {
 	marketId: number;
 	outcomes: string;
 	outcomePrices: string;
+    conditionId: string;
     icon?: string;
 	// Other properties can be added here
 }

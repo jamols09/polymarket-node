@@ -264,8 +264,6 @@ class Polymarket {
 			}
 		}
 	}
-
-	// This method is used to get the markets
 }
 
 export default Polymarket;

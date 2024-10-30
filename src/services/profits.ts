@@ -41,6 +41,8 @@ export const calculateMarketProfit = (
 		odds: [],
 		potentialReturns: [],
         icon: "",
+        betAmount: 0,
+        conditionId: "",
 	};
 
 	// Loop through the data and parse the outcomes and outcomePrices
@@ -56,6 +58,7 @@ export const calculateMarketProfit = (
         potentialReturnData.startDate = market.startDate;
         potentialReturnData.endDate = market.endDate;
         potentialReturnData.icon = market.icon;
+        potentialReturnData.conditionId = market.conditionId;
 	});
 
 	// Insert the odds into the potentialReturn object
@@ -67,6 +70,9 @@ export const calculateMarketProfit = (
 			american: americanOdds,
 		});
 	});
+
+    // Set the bet amount
+    potentialReturnData.betAmount = betAmount;
 
 	// Calculate returns for each outcome price
 	potentialReturnData.odds.forEach((odd) => {
