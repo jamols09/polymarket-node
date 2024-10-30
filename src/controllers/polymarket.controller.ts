@@ -239,7 +239,7 @@ class Polymarket {
 	public async getEventsController(req: Request, res: Response) {
 		try {
 			const events = await eventsAPI(req.query);
-            const profits = await calculateEventProfit(events);
+			const profits = await calculateEventProfit(events);
 			res.status(200).json(profits);
 		} catch (error) {
 			if (error instanceof Error) {
@@ -250,7 +250,7 @@ class Polymarket {
 		}
 	}
 
-	// This method is used to get the markets
+	// This method is used to get the markets or single market
 	public async getMarketsController(req: Request, res: Response) {
 		try {
 			const markets = await marketsAPI(req.query);
@@ -265,7 +265,6 @@ class Polymarket {
 		}
 	}
 
-	// This method is used to get the markets
 }
 
 export default Polymarket;

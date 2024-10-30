@@ -39,12 +39,12 @@ routes.delete("/delete-api-keys", async (req: Request, res: Response) => {
 });
 
 // Get Events
-routes.get("/events", async (req: Request, res: Response) => {
+routes.get("/events/:eventId?", async (req: Request, res: Response) => {
     polymarket.getEventsController(req, res);
 });
 
 // Get Markets
-routes.get("/markets", async (req: Request, res: Response) => {
+routes.get("/markets/:marketId?", async (req: Request, res: Response) => {
     polymarket.getMarketsController(req, res);
 });
 
