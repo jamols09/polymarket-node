@@ -8,6 +8,7 @@ declare module "express-serve-static-core" {
 }
 
 export const setupWebsocket = (app: Application) => {
+    console.log("Websocket Initialized");
 	// Define WebSocket endpoint
 	app.ws("/data-stream", async (ws, req: Request) => {
 		console.log("Client connected to /data-stream WebSocket");
