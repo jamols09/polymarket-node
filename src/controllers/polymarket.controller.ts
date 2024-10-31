@@ -16,7 +16,11 @@ import {
 	ApiKeyRaw,
 	L1PolyHeader,
 } from "../schema/polymarket";
-import { calculateEventProfit, calculateMarketProfit } from "../services/profits";
+
+import {
+	calculateEventProfit,
+	calculateMarketProfit,
+} from "../services/profits";
 
 class Polymarket {
 	private provider: JsonRpcProvider;
@@ -28,7 +32,7 @@ class Polymarket {
 	constructor() {
 		// if no private key is set this will throw an error
 		const privateKey = process.env.PRIVATE_KEY;
-        
+
 		if (!privateKey) {
 			throw new Error("PRIVATE_KEY is not defined");
 		}
@@ -233,13 +237,14 @@ class Polymarket {
 			}
 		}
 	}
+
 	///////////////////////////////////////////////////////// THIS IS A SAMPLE METHOD
 
 	// This method is used to get the events
 	public async getEventsController(req: Request, res: Response) {
 		try {
 			const events = await eventsAPI(req.query);
-            const profits = await calculateEventProfit(events);
+			const profits = await calculateEventProfit(events);
 			res.status(200).json(profits);
 		} catch (error) {
 			if (error instanceof Error) {
@@ -264,6 +269,32 @@ class Polymarket {
 			}
 		}
 	}
+
+	// public async websocketCurrentEventOddsController(
+	// 	req: Request,
+	// 	res: Response
+	// ) {
+	// 	try {
+	// 		const data = await CurrentEventOddsModel.getCurrentEventOdds();
+	// 		const ws = new WebSocket("wss://localhost:5002/data-stream");
+
+    //         ws.on("open", function open() {
+    //             console.log("WebSocket connection established");
+    //             ws.send(JSON.stringify(data));
+    //         });
+	// 		ws.on("message", function message(data) {
+	// 			console.log("Received data from WebSocket:", data);
+	// 		});
+
+	// 		ws.on("error", function error(err) {
+	// 			console.error("WebSocket error:", err);
+	// 		});
+
+	// 		ws.on("close", function close() {
+	// 			console.log("WebSocket connection closed");
+	// 		});
+	// 	} catch (error) {}
+	// }
 }
 
 export default Polymarket;

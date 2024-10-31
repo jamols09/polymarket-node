@@ -5,16 +5,22 @@ import morgan from "morgan";
 import cors from "cors";
 import cron from "node-cron";
 import { dbconnect } from "./services/mongodb/mongodb.service";
+// Websocket
+import expressWs from "express-ws";
 
 // Import the cron job
 import { geneRateCronJob } from "./services/cronjob/polymarket.cronjob";
+import { setupWebsocket } from "./websocket/polymarket.websocket";
 
 // Initialize Port
-const PORT = process.env.PORT || 5002;
+const PORT = process.env.PORT || 5008;
 // Initialize express
 const server = express();
 
 dbconnect();
+
+// Initialize the websocket
+expressWs(server);
 
 server.use(morgan("dev"));
 server.use(cors());
@@ -30,9 +36,14 @@ server.listen(PORT, () => {
 });
 
 /*
+ * Websocket setup
+ */
+setupWebsocket(server);
+
+/*
  * This cron job will run every 10 minutes
  * This is where you will put the code to generate the target reports
  */
-cron.schedule("10 * * * *", geneRateCronJob);
+cron.schedule("* * * * *", geneRateCronJob);
 
 export default server;
