@@ -28,6 +28,7 @@ export const calculateMarketProfit = (
 	data: MarketData[],
 	betAmount: number = 10
 ): PotentialReturnData => {
+    // Validate the data
 	validateArrayData(data);
 
 	// Initialize potential returns

@@ -9,7 +9,7 @@ import { dbconnect } from "./services/mongodb/mongodb.service";
 import expressWs from "express-ws";
 
 // Import the cron job
-import { geneRateCronJob } from "./services/cronjob/polymarket.cronjob";
+import { generateCronJob } from "./services/cronjob/polymarket.cronjob";
 import { setupWebsocket } from "./websocket/polymarket.websocket";
 
 // Initialize Port
@@ -35,15 +35,15 @@ server.listen(PORT, () => {
 	console.log(`PORT --> ${PORT}`);
 });
 
-/*
- * Websocket setup
- */
-setupWebsocket(server);
 
 /*
  * This cron job will run every 10 minutes
  * This is where you will put the code to generate the target reports
  */
-cron.schedule("10 * * * *", geneRateCronJob);
+cron.schedule("*/10 * * * *", generateCronJob);
+/*
+ * Websocket setup
+ */
+setupWebsocket(server);
 
 export default server;

@@ -33,7 +33,6 @@ export default class CurrentEventOddsModel extends mongoose.model(
 			console.error("Error saving current event odds:", error);
 			return null;
 		}
-		return null;
 	}
 
 	public static async getCurrentEventOdds(): Promise<

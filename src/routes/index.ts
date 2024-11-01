@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import Polymarket from "../controllers/polymarket.controller";
+import { validateAuthMiddleware } from "../middleware/validateAuthMiddleware";
 
 const routes = Router();
 const polymarket = new Polymarket(); // Create a single instance of Polymarket
@@ -20,7 +21,7 @@ routes.get("/l2-header", async (req: Request, res: Response) => {
 
 // Create API Keys
 routes.post("/create-api-key", async (req: Request, res: Response) => {
-    polymarket.createApiKeysController(req, res);
+	polymarket.createApiKeysController(req, res);
 });
 
 // Derive API Key
@@ -30,31 +31,32 @@ routes.get("/derive-api-key", async (req: Request, res: Response) => {
 
 // Get API Keys
 routes.get("/get-api-keys", async (req: Request, res: Response) => {
-    polymarket.getApiKeysController(req, res);
+	polymarket.getApiKeysController(req, res);
 });
 
 // Delete API Keys
 routes.delete("/delete-api-keys", async (req: Request, res: Response) => {
-    polymarket.deleteApiKeysController(req, res);
+	polymarket.deleteApiKeysController(req, res);
 });
 
 // Get Events
 routes.get("/events", async (req: Request, res: Response) => {
-    polymarket.getEventsController(req, res);
+	polymarket.getEventsController(req, res);
 });
 
 // Get Markets
 routes.get("/markets", async (req: Request, res: Response) => {
-    polymarket.getMarketsController(req, res);
+	polymarket.getMarketsController(req, res);
 });
-
-
 
 // SAMPLE POTENTIAL RETURN
 routes.get("/sample-potential-return", async (req: Request, res: Response) => {
-    polymarket.samplePotentialReturn(req, res);
+	polymarket.samplePotentialReturn(req, res);
 });
 
-
+// Test
+routes.post("/test", validateAuthMiddleware, async (req: Request, res: Response) => {
+    res.status(200).send("Test API");
+});
 
 export default routes;
