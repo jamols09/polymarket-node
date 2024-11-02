@@ -20,6 +20,8 @@ import {
 } from "../schema/polymarket";
 import { calculateEventProfit, calculateMarketProfit } from "../services/profits";
 import { transformEventData } from "../helpers/priceHistoryHelper";
+import bcrypt from "bcrypt";
+import { StatusCodes } from "http-status-codes";
 
 class Polymarket {
 	private provider: JsonRpcProvider;
@@ -31,7 +33,7 @@ class Polymarket {
 	constructor() {
 		// if no private key is set this will throw an error
 		const privateKey = process.env.PRIVATE_KEY;
-        
+
 		if (!privateKey) {
 			throw new Error("PRIVATE_KEY is not defined");
 		}
@@ -236,6 +238,7 @@ class Polymarket {
 			}
 		}
 	}
+
 	///////////////////////////////////////////////////////// THIS IS A SAMPLE METHOD
 
 	// This method is used to get the events
@@ -267,46 +270,6 @@ class Polymarket {
 			}
 		}
 	}
-	/* public async getPriceHistoryController(req: Request, res: Response): Promise<void> {
-		const { eventId } = req.params;
-		const startTs = 1730251417;
-		const endTs = 1730332263;
-		let marketPriceHistory: any[] = [];
-
-		try {
-			const [event] = await eventsAPI({ id: eventId });
-
-			await Promise.all(
-				event.markets.map(async (market: any) => {
-					const clobTokenIds = JSON.parse(market.clobTokenIds);
-
-					if (Array.isArray(clobTokenIds) && clobTokenIds.length > 0) {
-						const marketPriceHistoryPromises = clobTokenIds.map(async (tokenId) => {
-							const { history } = await priceHistoryAPI({
-								market: tokenId,
-								startTs,
-								endTs,
-							});
-
-							return { [tokenId === clobTokenIds[0] ? 'Yes' : 'No']: history };
-						});
-
-						const marketPriceHistory = await Promise.all(marketPriceHistoryPromises);
-
-						market.priceHistory = marketPriceHistory;
-					} else {
-						res.status(404).json({ error: `No price history found for market ${market.id}` });
-					}
-				})
-			);
-
-			res.status(200).json(event);
-		} catch (error) {
-			res.status(500).json({ error: "Failed to get market or price history" });
-		}
-	} */
-
-		
 	public async getPriceHistoryController(req: Request, res: Response): Promise<void> {
 		const { eventId } = req.params;
 	
@@ -344,6 +307,35 @@ class Polymarket {
 	}
 		
 
+
+	public async setAccount(req: Request, res: Response) {
+		// Get password from the request
+		const password = req.headers["credentials"] as string;
+
+        // Throw error when there is no password included
+		if (!password) {
+			res.status(StatusCodes.UNAUTHORIZED).json({
+				error: StatusCodes.UNAUTHORIZED,
+				message: `Password is required`,
+			});
+		} else {
+			// Check if the password is correct
+			const salt = 5;
+			const hashedPassword = await bcrypt.hash(password, salt);
+
+			// Will expire 1 day from now
+			res.cookie("hash", hashedPassword, {
+				expires: new Date(Date.now() + 86400000),
+				httpOnly: true,
+			});
+		}
+
+		// Display cookies in response
+		res.json({
+			message: "Cookies saved",
+			cookies: req.cookies,
+		});
+	}
 }
 
 export default Polymarket;
