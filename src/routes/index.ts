@@ -48,7 +48,9 @@ routes.get("/markets/:marketId?", async (req: Request, res: Response) => {
     polymarket.getMarketsController(req, res);
 });
 
-
+routes.get('/price-history/:eventId', async (req: Request, res: Response) => {
+    polymarket.getPriceHistoryController(req, res);
+})
 
 // SAMPLE POTENTIAL RETURN
 routes.get("/sample-potential-return", async (req: Request, res: Response) => {

@@ -97,6 +97,19 @@ export const marketsAPI = async (query: any) => {
 	}
 };
 
+export const priceHistoryAPI = async (query: any) => {
+	try {
+		const params = new URLSearchParams(query as Record<string, string>);
+		const url = `https://clob.polymarket.com/prices-history?${params.toString()}`;
+		const result: AxiosResponse<any> = await axios.get<any>(url);
+
+		return result.data;
+	} catch (error: any) {
+		console.error("Error making request:", error.message);
+		throw new Error("Failed to make request");
+	}
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 interface Token {
 	outcome: string;

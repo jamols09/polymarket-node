@@ -8,8 +8,10 @@ import {
 	samplePotentialReturn,
 	eventsAPI,
 	marketsAPI,
-} from "../api/polymarket";
+	priceHistoryAPI,
 
+} from "../api/polymarket";
+import { getMarketPriceHistory, validateMarket, convertDateToUnix } from "../services/marketPriceHistory"
 import {
 	ApiCreds,
 	ApiKeyCreds,
@@ -17,6 +19,7 @@ import {
 	L1PolyHeader,
 } from "../schema/polymarket";
 import { calculateEventProfit, calculateMarketProfit } from "../services/profits";
+import { transformEventData } from "../helpers/priceHistoryHelper";
 
 class Polymarket {
 	private provider: JsonRpcProvider;
@@ -264,6 +267,83 @@ class Polymarket {
 			}
 		}
 	}
+	/* public async getPriceHistoryController(req: Request, res: Response): Promise<void> {
+		const { eventId } = req.params;
+		const startTs = 1730251417;
+		const endTs = 1730332263;
+		let marketPriceHistory: any[] = [];
+
+		try {
+			const [event] = await eventsAPI({ id: eventId });
+
+			await Promise.all(
+				event.markets.map(async (market: any) => {
+					const clobTokenIds = JSON.parse(market.clobTokenIds);
+
+					if (Array.isArray(clobTokenIds) && clobTokenIds.length > 0) {
+						const marketPriceHistoryPromises = clobTokenIds.map(async (tokenId) => {
+							const { history } = await priceHistoryAPI({
+								market: tokenId,
+								startTs,
+								endTs,
+							});
+
+							return { [tokenId === clobTokenIds[0] ? 'Yes' : 'No']: history };
+						});
+
+						const marketPriceHistory = await Promise.all(marketPriceHistoryPromises);
+
+						market.priceHistory = marketPriceHistory;
+					} else {
+						res.status(404).json({ error: `No price history found for market ${market.id}` });
+					}
+				})
+			);
+
+			res.status(200).json(event);
+		} catch (error) {
+			res.status(500).json({ error: "Failed to get market or price history" });
+		}
+	} */
+
+		
+	public async getPriceHistoryController(req: Request, res: Response): Promise<void> {
+		const { eventId } = req.params;
+	
+		try {
+			const [event] = await eventsAPI({ id: eventId });
+	
+			if (!event.markets || event.markets.length === 0) {
+				res.status(404).json({ error: `No markets found for event ${eventId}` });
+				return;
+			}
+	
+			for (const market of event.markets) {
+				try {
+					const clobTokenIds = validateMarket(market);
+					const startTs = convertDateToUnix(new Date(market.startDateIso));
+					const endTs = convertDateToUnix(new Date(market.endDateIso));
+	
+					// Fetch and assign price history data
+					market.priceHistory = await getMarketPriceHistory(clobTokenIds, startTs, endTs);
+				} catch (error) {
+					res.status(404).json({ error: error });
+					return;
+				}
+			}
+	
+			// Construct response using the Event and Market interfaces
+			
+			const eventData = transformEventData(event);
+
+			// Send the typed response
+			res.status(200).json(eventData);
+		} catch (error) {
+			res.status(500).json({ error: "Failed to get market or price history" });
+		}
+	}
+		
+
 }
 
 export default Polymarket;
