@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import Polymarket from "../controllers/polymarket.controller";
-import { validateAuthMiddleware } from "../middleware/validateAuthMiddleware";
+import { validateAuthMiddleware } from "../middleware/validateAuth.middleware";
 
 const routes = Router();
 
