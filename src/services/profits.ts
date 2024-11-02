@@ -33,6 +33,7 @@ export const calculateMarketProfit = (
 
 	// Initialize potential returns
 	const potentialReturnData: PotentialReturnData = {
+		id: 0,
 		question: "",
 		slug: "",
         startDate: "",
@@ -54,12 +55,13 @@ export const calculateMarketProfit = (
 		potentialReturnData.outcomePrices.push(...parsedOutcomePrices);
 		potentialReturnData.outcomes.push(...parsedOutcomes);
 
+		potentialReturnData.id = market.id;
 		potentialReturnData.question = market.question;
 		potentialReturnData.slug = market.slug;
-        potentialReturnData.startDate = market.startDate;
-        potentialReturnData.endDate = market.endDate;
-        potentialReturnData.icon = market.icon;
-        potentialReturnData.conditionId = market.conditionId;
+		potentialReturnData.startDate = market.startDate;
+		potentialReturnData.endDate = market.endDate;
+		potentialReturnData.icon = market.icon;
+		potentialReturnData.conditionId = market.conditionId;
 	});
 
 	// Insert the odds into the potentialReturn object
@@ -111,6 +113,7 @@ export const calculateEventProfit = (
 			);
 
 			const potentialEventReturn: PotentialEventReturnData = {
+				id: market.id,
 				question: market.question,
 				slug: market.slug,
 				outcomes: parsedOutcomes,

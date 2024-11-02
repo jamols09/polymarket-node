@@ -40,9 +40,14 @@ routes.delete("/delete-api-keys", async (req: Request, res: Response) => {
 	polymarket.deleteApiKeysController(req, res);
 });
 
+// Get Price History
+routes.get('/price-history/:eventId', async (req: Request, res: Response) => {
+    polymarket.getPriceHistoryController(req, res);
+})
+
 // Get Events
 routes.get(
-	"/events",
+	"/events/:eventId?",
 	validateAuthMiddleware,
 	async (req: Request, res: Response) => {
 		polymarket.getEventsController(req, res);
@@ -51,7 +56,7 @@ routes.get(
 
 // Get Markets
 routes.get(
-	"/markets",
+	"/markets/:marketId?",
 	validateAuthMiddleware,
 	async (req: Request, res: Response) => {
 		polymarket.getMarketsController(req, res);

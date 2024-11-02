@@ -8,19 +8,18 @@ import {
 	samplePotentialReturn,
 	eventsAPI,
 	marketsAPI,
-} from "../api/polymarket";
+	priceHistoryAPI,
 
+} from "../api/polymarket";
+import { getMarketPriceHistory, validateMarket, convertDateToUnix } from "../services/marketPriceHistory"
 import {
 	ApiCreds,
 	ApiKeyCreds,
 	ApiKeyRaw,
 	L1PolyHeader,
 } from "../schema/polymarket";
-
-import {
-	calculateEventProfit,
-	calculateMarketProfit,
-} from "../services/profits";
+import { calculateEventProfit, calculateMarketProfit } from "../services/profits";
+import { transformEventData } from "../helpers/priceHistoryHelper";
 import bcrypt from "bcrypt";
 import { StatusCodes } from "http-status-codes";
 
@@ -257,7 +256,7 @@ class Polymarket {
 		}
 	}
 
-	// This method is used to get the markets
+	// This method is used to get the markets or single market
 	public async getMarketsController(req: Request, res: Response) {
 		try {
 			const markets = await marketsAPI(req.query);
@@ -271,6 +270,43 @@ class Polymarket {
 			}
 		}
 	}
+	public async getPriceHistoryController(req: Request, res: Response): Promise<void> {
+		const { eventId } = req.params;
+	
+		try {
+			const [event] = await eventsAPI({ id: eventId });
+	
+			if (!event.markets || event.markets.length === 0) {
+				res.status(404).json({ error: `No markets found for event ${eventId}` });
+				return;
+			}
+	
+			for (const market of event.markets) {
+				try {
+					const clobTokenIds = validateMarket(market);
+					const startTs = convertDateToUnix(new Date(market.startDateIso));
+					const endTs = convertDateToUnix(new Date(market.endDateIso));
+	
+					// Fetch and assign price history data
+					market.priceHistory = await getMarketPriceHistory(clobTokenIds, startTs, endTs);
+				} catch (error) {
+					res.status(404).json({ error: error });
+					return;
+				}
+			}
+	
+			// Construct response using the Event and Market interfaces
+			
+			const eventData = transformEventData(event);
+
+			// Send the typed response
+			res.status(200).json(eventData);
+		} catch (error) {
+			res.status(500).json({ error: "Failed to get market or price history" });
+		}
+	}
+		
+
 
 	public async setAccount(req: Request, res: Response) {
 		// Get password from the request

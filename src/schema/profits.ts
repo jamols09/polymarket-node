@@ -15,6 +15,7 @@ export interface PotentialReturnData {
 	outcomePrices: number[];
 	odds: Odds[];
 	potentialReturns: PotentialReturn[];
+		id: number;
     question: string;
     slug: string;
     startDate: string;
@@ -25,6 +26,7 @@ export interface PotentialReturnData {
 }
 
 export interface MarketData {
+		id: number,
     startDate: string;
     endDate: string;
     question: string;
@@ -42,6 +44,7 @@ export interface EventData {
 }
 
 export interface EventMarketData {
+	id: number,
 	outcomePrices: string;
 	outcomes: string;
 	question: string;
@@ -53,6 +56,7 @@ export interface EventMarketData {
 }
 
 export interface PotentialEventReturnData {
+	id: number;
 	question: string;
 	slug: string;
 	outcomes: string[];
