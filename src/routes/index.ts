@@ -1,8 +1,13 @@
 import { Router, Request, Response } from "express";
+import cookieParser from "cookie-parser"; // Import cookie-parser
 import Polymarket from "../controllers/polymarket.controller";
-import { validateAuthMiddleware } from "../middleware/validateAuthMiddleware";
+import {
+	generateAuthMiddleware,
+	validateAuthMiddleware,
+} from "../middleware/validateAuthMiddleware";
 
 const routes = Router();
+
 const polymarket = new Polymarket(); // Create a single instance of Polymarket
 
 routes.get("/", (req: Request, res: Response) => {
@@ -49,14 +54,43 @@ routes.get("/markets", async (req: Request, res: Response) => {
 	polymarket.getMarketsController(req, res);
 });
 
+// This route will save credential hash
+routes.post(
+	"/set-account",
+	generateAuthMiddleware,
+	async (req: Request, res: Response) => {
+		// Display cookies in response
+		res.json({
+			message: "Cookies saved",
+			cookies: req.cookies?.hash,
+		});
+	}
+);
+
+routes.get(
+	"/verify-account",
+	validateAuthMiddleware,
+	async (req: Request, res: Response) => {
+		res.json({
+			message: "Hashed cookies",
+            cookies: req.cookies?.hash,
+		});
+	}
+);
+
+routes.get("/saved-cookies", async (req: Request, res: Response) => {
+	const cookies = req.cookies;
+	res.json({
+		message: "Retrieved cookies",
+		cookies: cookies,
+	});
+});
+
+///////////////////////////////////////////////////////////////////////////////
+
 // SAMPLE POTENTIAL RETURN
 routes.get("/sample-potential-return", async (req: Request, res: Response) => {
 	polymarket.samplePotentialReturn(req, res);
-});
-
-// Test
-routes.post("/test", validateAuthMiddleware, async (req: Request, res: Response) => {
-    res.status(200).send("Test API");
 });
 
 export default routes;

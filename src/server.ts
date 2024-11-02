@@ -11,6 +11,7 @@ import expressWs from "express-ws";
 // Import the cron job
 import { generateCronJob } from "./services/cronjob/polymarket.cronjob";
 import { setupWebsocket } from "./websocket/polymarket.websocket";
+import cookieParser from "cookie-parser";
 
 // Initialize Port
 const PORT = process.env.PORT || 5008;
@@ -22,6 +23,7 @@ dbconnect();
 // Initialize the websocket
 expressWs(server);
 
+server.use(cookieParser()); 
 server.use(morgan("dev"));
 server.use(cors());
 server.use(express.json());

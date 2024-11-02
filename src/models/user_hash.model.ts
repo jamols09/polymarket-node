@@ -11,10 +11,7 @@ const schema = new mongoose.Schema(
 	{ timestamps: true }
 );
 
-export default class UserHashModel extends mongoose.model(
-	"user_hash",
-	schema
-) {
+export default class UserHashModel extends mongoose.model("user_hash", schema) {
 	public static async saveUserHash(user_hash: any): Promise<IUserHash | null> {
 		// Implement the logic to save current event odds
 		try {
@@ -25,6 +22,15 @@ export default class UserHashModel extends mongoose.model(
 			console.error("Error saving current event odds:", error);
 			return null;
 		}
-		return null;
+	}
+
+	public static async getUserHash(): Promise<IUserHash[] | null> {
+		try {
+			const data = await this.find().sort({ timestamp: -1 }).limit(1);
+			return data;
+		} catch (error) {
+			console.error("Error retrieving current event odds:", error);
+			return null;
+		}
 	}
 }
