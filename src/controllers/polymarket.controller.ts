@@ -21,6 +21,8 @@ import {
 	calculateEventProfit,
 	calculateMarketProfit,
 } from "../services/profits";
+import bcrypt from "bcrypt";
+import { StatusCodes } from "http-status-codes";
 
 class Polymarket {
 	private provider: JsonRpcProvider;
@@ -270,31 +272,34 @@ class Polymarket {
 		}
 	}
 
-	// public async websocketCurrentEventOddsController(
-	// 	req: Request,
-	// 	res: Response
-	// ) {
-	// 	try {
-	// 		const data = await CurrentEventOddsModel.getCurrentEventOdds();
-	// 		const ws = new WebSocket("wss://localhost:5002/data-stream");
+	public async setAccount(req: Request, res: Response) {
+		// Get password from the request
+		const password = req.headers["credentials"] as string;
 
-    //         ws.on("open", function open() {
-    //             console.log("WebSocket connection established");
-    //             ws.send(JSON.stringify(data));
-    //         });
-	// 		ws.on("message", function message(data) {
-	// 			console.log("Received data from WebSocket:", data);
-	// 		});
+        // Throw error when there is no password included
+		if (!password) {
+			res.status(StatusCodes.UNAUTHORIZED).json({
+				error: StatusCodes.UNAUTHORIZED,
+				message: `Password is required`,
+			});
+		} else {
+			// Check if the password is correct
+			const salt = 5;
+			const hashedPassword = await bcrypt.hash(password, salt);
 
-	// 		ws.on("error", function error(err) {
-	// 			console.error("WebSocket error:", err);
-	// 		});
+			// Will expire 1 day from now
+			res.cookie("hash", hashedPassword, {
+				expires: new Date(Date.now() + 86400000),
+				httpOnly: true,
+			});
+		}
 
-	// 		ws.on("close", function close() {
-	// 			console.log("WebSocket connection closed");
-	// 		});
-	// 	} catch (error) {}
-	// }
+		// Display cookies in response
+		res.json({
+			message: "Cookies saved",
+			cookies: req.cookies,
+		});
+	}
 }
 
 export default Polymarket;

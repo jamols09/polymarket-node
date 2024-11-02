@@ -1,10 +1,6 @@
 import { Router, Request, Response } from "express";
-import cookieParser from "cookie-parser"; // Import cookie-parser
 import Polymarket from "../controllers/polymarket.controller";
-import {
-	generateAuthMiddleware,
-	validateAuthMiddleware,
-} from "../middleware/validateAuthMiddleware";
+import { validateAuthMiddleware } from "../middleware/validateAuthMiddleware";
 
 const routes = Router();
 
@@ -45,35 +41,35 @@ routes.delete("/delete-api-keys", async (req: Request, res: Response) => {
 });
 
 // Get Events
-routes.get("/events", async (req: Request, res: Response) => {
-	polymarket.getEventsController(req, res);
-});
-
-// Get Markets
-routes.get("/markets", async (req: Request, res: Response) => {
-	polymarket.getMarketsController(req, res);
-});
-
-// This route will save credential hash
-routes.post(
-	"/set-account",
-	generateAuthMiddleware,
+routes.get(
+	"/events",
+	validateAuthMiddleware,
 	async (req: Request, res: Response) => {
-		// Display cookies in response
-		res.json({
-			message: "Cookies saved",
-			cookies: req.cookies?.hash,
-		});
+		polymarket.getEventsController(req, res);
 	}
 );
 
+// Get Markets
+routes.get(
+	"/markets",
+	validateAuthMiddleware,
+	async (req: Request, res: Response) => {
+		polymarket.getMarketsController(req, res);
+	}
+);
+
+// This route will save credential hash
+routes.post("/set-account", async (req: Request, res: Response) => {
+	polymarket.setAccount(req, res);
+});
+
+// This route will verify the account
 routes.get(
 	"/verify-account",
 	validateAuthMiddleware,
 	async (req: Request, res: Response) => {
 		res.json({
-			message: "Hashed cookies",
-            cookies: req.cookies?.hash,
+			message: "Account verified",
 		});
 	}
 );
