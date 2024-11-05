@@ -19,6 +19,14 @@ export const validateAuthMiddleware = async (
 		return;
 	}
 
+	if (!req.cookies.hash) {
+		res.status(StatusCodes.BAD_REQUEST).json({
+			error: "Empty hash",
+			message: "No cookies are found",
+		});
+		return;
+	}
+
 	const isMatch = await bcrypt.compare(password, req.cookies.hash);
 
 	// Check if password is correct
