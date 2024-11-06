@@ -9,19 +9,22 @@ import {
 	eventsAPI,
 	marketsAPI,
 	priceHistoryAPI,
-
 } from "../api/polymarket";
-import { getMarketPriceHistory, validateMarket, convertDateToUnix, formatPriceHistory } from "../services/marketPriceHistory"
+import { formatPriceHistory } from "../services/marketPriceHistory"
 import {
 	ApiCreds,
 	ApiKeyCreds,
 	ApiKeyRaw,
 	L1PolyHeader,
 } from "../schema/polymarket";
-import { calculateEventProfit, calculateMarketProfit } from "../services/profits";
+import {
+	calculateEventProfit,
+	calculateMarketProfit,
+} from "../services/profits";
 import { transformEventData } from "../helpers/priceHistoryHelper";
 import bcrypt from "bcrypt";
 import { StatusCodes } from "http-status-codes";
+import fs from "fs";
 
 class Polymarket {
 	private provider: JsonRpcProvider;
@@ -297,7 +300,7 @@ class Polymarket {
 		// Get password from the request
 		const password = req.headers["credentials"] as string;
 
-        // Throw error when there is no password included
+		// Throw error when there is no password included
 		if (!password) {
 			res.status(StatusCodes.UNAUTHORIZED).json({
 				error: StatusCodes.UNAUTHORIZED,
@@ -312,6 +315,28 @@ class Polymarket {
 			res.cookie("hash", hashedPassword, {
 				expires: new Date(Date.now() + 86400000),
 				httpOnly: true,
+				sameSite: "none",
+			});
+
+			// Store the cookie to passwords.json
+			const storePassword = async (hashedPassword: any) => {
+				fs.writeFileSync(
+					"passwords.json",
+					JSON.stringify({ password: hashedPassword })
+				);
+			};
+			storePassword(hashedPassword);
+
+			const data = fs.readFileSync("passwords.json", "utf8");
+			const json = JSON.parse(data);
+			const filePassword = json.password;
+
+			// Debugging
+			console.table({
+				password,
+				cookies: req.cookies.hash,
+				hashedPassword,
+				filePassword,
 			});
 		}
 

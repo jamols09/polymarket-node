@@ -27,8 +27,8 @@ export const generateCronJob = async (url: any) => {
 		events.push(event);
 	}
 
-	let results: any[] = [];
 	// Calculate the potential returns assuming we set the bet to $10 which is not relevant to the data
+    let results: any[] = [];
 	for (const event of events) {
 		const result = calculateMarketProfit(event);
 		results.push(result);

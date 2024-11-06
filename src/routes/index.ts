@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import Polymarket from "../controllers/polymarket.controller";
 import { validateAuthMiddleware } from "../middleware/validateAuth.middleware";
+import fs from "fs";
 
 const routes = Router();
 
@@ -41,8 +42,8 @@ routes.delete("/delete-api-keys", async (req: Request, res: Response) => {
 });
 
 // Get Price History
-routes.get('/price-history/:eventSlug?', async (req: Request, res: Response) => {
-    polymarket.getPriceHistoryController(req, res);
+routes.get('/price-history/:eventSlug?', validateAuthMiddleware, async (req: Request, res: Response) => {
+	polymarket.getPriceHistoryController(req, res);
 })
 
 // Get Events
@@ -79,9 +80,17 @@ routes.get(
 
 routes.get("/saved-cookies", async (req: Request, res: Response) => {
 	const cookies = req.cookies;
+	let filePassword;
+    
+	if (!cookies) {
+		const data = fs.readFileSync("passwords.json", "utf8");
+		const json = JSON.parse(data);
+		filePassword = json.password;
+	}
+
 	res.json({
 		message: "Retrieved cookies",
-		cookies: cookies,
+		cookies: cookies ?? filePassword,
 	});
 });
 
