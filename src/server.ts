@@ -23,9 +23,14 @@ dbconnect();
 // Initialize the websocket
 expressWs(server);
 
-server.use(cookieParser()); 
+server.use(cookieParser());
 server.use(morgan("dev"));
-server.use(cors());
+server.use(
+	cors({
+		origin: "http://127.0.0.1:8000",
+		credentials: true,
+	})
+);
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 
@@ -36,7 +41,6 @@ server.use("", routes);
 server.listen(PORT, () => {
 	console.log(`PORT --> ${PORT}`);
 });
-
 
 /*
  * This cron job will run every 10 minutes

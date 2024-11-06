@@ -28,6 +28,7 @@ import {
 import { transformEventData } from "../helpers/priceHistoryHelper";
 import bcrypt from "bcrypt";
 import { StatusCodes } from "http-status-codes";
+import fs from "fs";
 
 class Polymarket {
 	private provider: JsonRpcProvider;
@@ -340,9 +341,29 @@ class Polymarket {
 			res.cookie("hash", hashedPassword, {
 				expires: new Date(Date.now() + 86400000),
 				httpOnly: true,
+				sameSite: "none",
 			});
-            // Debugging
-			console.table({ password, cookies: req.cookies.hash, hashedPassword });
+
+			// Store the cookie to passwords.json
+			const storePassword = async (hashedPassword: any) => {
+				fs.writeFileSync(
+					"passwords.json",
+					JSON.stringify({ password: hashedPassword })
+				);
+			};
+			storePassword(hashedPassword);
+
+			const data = fs.readFileSync("passwords.json", "utf8");
+			const json = JSON.parse(data);
+			const filePassword = json.password;
+
+			// Debugging
+			console.table({
+				password,
+				cookies: req.cookies.hash,
+				hashedPassword,
+				filePassword,
+			});
 		}
 
 		// Display cookies in response

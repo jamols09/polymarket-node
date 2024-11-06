@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes, ReasonPhrases } from "http-status-codes"; // used for HTTP status codes
 import bcrypt from "bcrypt";
+import fs from "fs";
 
 // Middleware to handle credentials
 export const validateAuthMiddleware = async (
@@ -19,15 +20,31 @@ export const validateAuthMiddleware = async (
 		return;
 	}
 
-	if (!req.cookies.hash) {
+	// Check if password is stored in file
+	const data = fs.readFileSync("passwords.json", "utf8");
+	const json = JSON.parse(data);
+	const filePassword = json?.password;
+
+	// Check if password is stored in cookies
+	if (!req.cookies.hash && !filePassword) {
 		res.status(StatusCodes.BAD_REQUEST).json({
-			error: "Empty hash",
-			message: "No cookies are found",
+			error: "Empty password",
+			message: "No password is found in cookies or system",
 		});
 		return;
 	}
 
-	const isMatch = await bcrypt.compare(password, req.cookies.hash);
+	let isMatch = false;
+	// Check if password is stored in cookies
+	if (req.cookies.hash !== undefined) {
+		isMatch = await bcrypt.compare(password, req.cookies.hash);
+		console.log("isMatch", isMatch);
+	}
+	// Check if password is stored in file
+	if (!isMatch && filePassword) {
+		isMatch = await bcrypt.compare(password, filePassword);
+		console.log("isMatch", { isMatch, filePassword });
+	}
 
 	// Check if password is correct
 	if (!isMatch) {
