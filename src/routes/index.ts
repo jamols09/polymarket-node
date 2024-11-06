@@ -64,6 +64,11 @@ routes.get(
 	}
 );
 
+// Get Market Array Prices. This call will come from a cron job in laravel
+routes.post("/market-list", async (req: Request, res: Response) => {
+	polymarket.getMarketListController(req, res);
+});
+
 // This route will save credential hash
 routes.post("/set-account", async (req: Request, res: Response) => {
 	polymarket.setAccount(req, res);
@@ -80,6 +85,7 @@ routes.get(
 	}
 );
 
+// Debugging purpose for showing saved cookies only
 routes.get("/saved-cookies", async (req: Request, res: Response) => {
 	const cookies = req.cookies;
 	let filePassword;

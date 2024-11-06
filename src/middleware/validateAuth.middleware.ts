@@ -35,15 +35,15 @@ export const validateAuthMiddleware = async (
 	}
 
 	let isMatch = false;
+
 	// Check if password is stored in cookies
 	if (req.cookies.hash !== undefined) {
 		isMatch = await bcrypt.compare(password, req.cookies.hash);
-		console.log("isMatch", isMatch);
 	}
+    
 	// Check if password is stored in file
 	if (!isMatch && filePassword) {
 		isMatch = await bcrypt.compare(password, filePassword);
-		console.log("isMatch", { isMatch, filePassword });
 	}
 
 	// Check if password is correct

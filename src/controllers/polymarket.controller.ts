@@ -254,10 +254,44 @@ class Polymarket {
 			if (error instanceof Error) {
 				res.status(500).json({ error: error.message });
 			} else {
-				res.status(500).json({ error: "Cannot get markets" });
+				res.status(500).json({ error: "Cannot get market slug" });
 			}
 		}
 	}
+
+	// Get Market Array Prices. This call will come from a cron job in laravel
+	public async getMarketListController(req: Request, res: Response) {
+		try {
+			const marketSlugs = req.body?.markets;
+
+			if (marketSlugs === undefined) {
+				return res.status(500).json({ error: "No slugs found" });
+			}
+
+			// Initialize array loops
+			let markets = [];
+			let profits = [];
+
+			// Get the market results and do api calls
+			for (const slug of marketSlugs) {
+				markets.push(await marketsAPI(slug));
+			}
+			// Get the profit results
+			for (const market of markets) {
+				profits.push(calculateMarketProfit(market));
+			}
+
+			return res.status(200).json({ profits });
+		} catch (error) {
+			if (error instanceof Error) {
+				res.status(500).json({ error: error.message });
+			} else {
+				res.status(500).json({ error: "Cannot get market slug" });
+			}
+		}
+	}
+
+	// This method is used to get the price history
 	public async getPriceHistoryController(
 		req: Request,
 		res: Response
