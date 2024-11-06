@@ -229,25 +229,6 @@ class Polymarket {
 		}
 	}
 
-	////////////////////////////////////////////////////////// THIS IS A SAMPLE METHOD
-	public async samplePotentialReturn(req: Request, res: Response) {
-		try {
-			const response = await samplePotentialReturn(
-				`https://clob.polymarket.com/markets/0x12a0cb60174abc437bf1178367c72d11f069e1a3add20b148fb0ab4279b772b2`
-			);
-
-			res.status(200).json(response);
-		} catch (error) {
-			if (error instanceof Error) {
-				res.status(500).json({ error: error.message });
-			} else {
-				res.status(500).json({ error: "Cannot derive API Keys" });
-			}
-		}
-	}
-
-	///////////////////////////////////////////////////////// THIS IS A SAMPLE METHOD
-
 	// This method is used to get the events
 	public async getEventsController(req: Request, res: Response) {
 		try {

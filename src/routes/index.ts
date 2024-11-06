@@ -83,24 +83,15 @@ routes.get(
 routes.get("/saved-cookies", async (req: Request, res: Response) => {
 	const cookies = req.cookies;
 	let filePassword;
-    
 	if (!cookies) {
 		const data = fs.readFileSync("passwords.json", "utf8");
 		const json = JSON.parse(data);
 		filePassword = json.password;
 	}
-
 	res.json({
 		message: "Retrieved cookies",
 		cookies: cookies ?? filePassword,
 	});
-});
-
-///////////////////////////////////////////////////////////////////////////////
-
-// SAMPLE POTENTIAL RETURN
-routes.get("/sample-potential-return", async (req: Request, res: Response) => {
-	polymarket.samplePotentialReturn(req, res);
 });
 
 export default routes;
