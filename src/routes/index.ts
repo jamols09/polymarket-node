@@ -41,7 +41,7 @@ routes.delete("/delete-api-keys", async (req: Request, res: Response) => {
 });
 
 // Get Price History
-routes.get('/price-history/:eventId?', async (req: Request, res: Response) => {
+routes.get('/price-history/:eventSlug?', async (req: Request, res: Response) => {
     polymarket.getPriceHistoryController(req, res);
 })
 

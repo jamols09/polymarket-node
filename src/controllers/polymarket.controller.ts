@@ -271,10 +271,15 @@ class Polymarket {
 		}
 	}
 	public async getPriceHistoryController(req: Request, res: Response): Promise<void> {
-    const { eventId } = req.params;
+    const { eventSlug } = req.params;
 
     try {
-        const events = await eventsAPI({actice: true, order: 'slug', ascending: false});
+        const events = await eventsAPI({
+					actice: true, 
+					order: 'slug', 
+					ascending: false, 
+					... (eventSlug ? { slug: eventSlug } : {})
+				});
 
         const eventData = await Promise.all(events.map(async(event: any) => {
 					return await formatPriceHistory(event);
@@ -287,9 +292,6 @@ class Polymarket {
         res.status(500).json({ error: "Failed to get market or price history" });
     }
 	}
-
-		
-
 
 	public async setAccount(req: Request, res: Response) {
 		// Get password from the request
