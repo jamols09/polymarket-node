@@ -28,7 +28,7 @@ export const calculateMarketProfit = (
 	data: MarketData[],
 	betAmount: number = 10
 ): PotentialReturnData => {
-    // Validate the data
+	// Validate the data
 	validateArrayData(data);
 
 	// Initialize potential returns
@@ -36,15 +36,15 @@ export const calculateMarketProfit = (
 		id: 0,
 		question: "",
 		slug: "",
-        startDate: "",
-        endDate: "",
+		startDate: "",
+		endDate: "",
 		outcomes: [],
 		outcomePrices: [],
 		odds: [],
 		potentialReturns: [],
-        icon: "",
-        betAmount: 0,
-        conditionId: "",
+		icon: "",
+		betAmount: 0,
+		conditionId: "",
 	};
 
 	// Loop through the data and parse the outcomes and outcomePrices
@@ -74,8 +74,8 @@ export const calculateMarketProfit = (
 		});
 	});
 
-    // Set the bet amount
-    potentialReturnData.betAmount = betAmount;
+	// Set the bet amount
+	potentialReturnData.betAmount = betAmount;
 
 	// Calculate returns for each outcome price
 	potentialReturnData.odds.forEach((odd) => {
@@ -88,9 +88,9 @@ export const calculateMarketProfit = (
 
 // Calculate event profit
 export const calculateEventProfit = (
-	data: EventData[],
+	data: any[],
 	betAmount: number = 10
-): PotentialEventReturnData[] => {
+): any => {
 	// Validate the data
 	validateArrayData(data);
 
@@ -123,12 +123,20 @@ export const calculateEventProfit = (
 				startDate: market.startDate,
 				endDate: market.endDate,
 				spread: market.spread,
-                icon: market.icon,
+				icon: market.icon,
 			};
 
 			potentialEventReturns.push(potentialEventReturn);
 		});
 	});
 
-	return potentialEventReturns;
+	let marketProfits = {
+		slug: data[0].slug,
+		title: data[0].title,
+		description: data[0].description,
+		image: data[0].image,
+		markets: potentialEventReturns,
+	};
+
+	return marketProfits;
 };

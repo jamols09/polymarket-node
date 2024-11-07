@@ -234,6 +234,7 @@ class Polymarket {
 		try {
 			const events = await eventsAPI(req.query);
 			const profits = await calculateEventProfit(events);
+            console.log(profits);
 			res.status(200).json(profits);
 		} catch (error) {
 			if (error instanceof Error) {
