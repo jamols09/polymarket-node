@@ -289,63 +289,26 @@ class Polymarket {
 	}
 
 	// This method is used to get the price history
-	public async getPriceHistoryController(
-		req: Request,
-		res: Response
-	): Promise<void> {
-		const { eventId } = req.params;
-
-		try {
-			const [event] = await eventsAPI({ id: eventId });
-
-			if (!event.markets || event.markets.length === 0) {
-				res
-					.status(404)
-					.json({ error: `No markets found for event ${eventId}` });
-				return;
-			}
-
-			for (const market of event.markets) {
-				try {
-					const clobTokenIds = validateMarket(market);
-					const startTs = convertDateToUnix(new Date(market.startDateIso));
-					const endTs = convertDateToUnix(new Date(market.endDateIso));
-
-					// Fetch and assign price history data
-					market.priceHistory = await getMarketPriceHistory(
-						clobTokenIds,
-						startTs,
-						endTs
-					);
-				} catch (error) {
-					res.status(404).json({ error: error });
-					return;
-				}
-			}
-
-			// Construct response using the Event and Market interfaces
-
-			const eventData = transformEventData(event);
 	public async getPriceHistoryController(req: Request, res: Response): Promise<void> {
     const { eventSlug } = req.params;
 
     try {
-        const events = await eventsAPI({
-					actice: true, 
-					order: 'slug', 
-					ascending: false, 
-					... (eventSlug ? { slug: eventSlug } : {})
-				});
+			const events = await eventsAPI({
+				actice: true, 
+				order: 'slug', 
+				ascending: false, 
+				... (eventSlug ? { slug: eventSlug } : {})
+			});
 
-        const eventData = await Promise.all(events.map(async(event: any) => {
-					return await formatPriceHistory(event);
-        }));
+			const eventData = await Promise.all(events.map(async(event: any) => {
+				return await formatPriceHistory(event);
+			}));
 
-        // Send the typed response
-        res.status(200).json(eventData);
+			// Send the typed response
+			res.status(200).json(eventData);
     } catch (error) {
-        console.error('Error occurred:', error);
-        res.status(500).json({ error: "Failed to get market or price history" });
+			console.error('Error occurred:', error);
+			res.status(500).json({ error: "Failed to get market or price history" });
     }
 	}
 
