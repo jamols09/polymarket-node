@@ -225,30 +225,12 @@ class Polymarket {
 		}
 	}
 
-	////////////////////////////////////////////////////////// THIS IS A SAMPLE METHOD
-	public async samplePotentialReturn(req: Request, res: Response) {
-		try {
-			const response = await samplePotentialReturn(
-				`https://clob.polymarket.com/markets/0x12a0cb60174abc437bf1178367c72d11f069e1a3add20b148fb0ab4279b772b2`
-			);
-
-			res.status(200).json(response);
-		} catch (error) {
-			if (error instanceof Error) {
-				res.status(500).json({ error: error.message });
-			} else {
-				res.status(500).json({ error: "Cannot derive API Keys" });
-			}
-		}
-	}
-
-	///////////////////////////////////////////////////////// THIS IS A SAMPLE METHOD
-
 	// This method is used to get the events
 	public async getEventsController(req: Request, res: Response) {
 		try {
 			const events = await eventsAPI(req.query);
 			const profits = await calculateEventProfit(events);
+            console.log(profits);
 			res.status(200).json(profits);
 		} catch (error) {
 			if (error instanceof Error) {
@@ -269,10 +251,81 @@ class Polymarket {
 			if (error instanceof Error) {
 				res.status(500).json({ error: error.message });
 			} else {
-				res.status(500).json({ error: "Cannot get markets" });
+				res.status(500).json({ error: "Cannot get market slug" });
 			}
 		}
 	}
+
+	// Get Market Array Prices. This call will come from a cron job in laravel
+	public async getMarketListController(req: Request, res: Response) {
+		try {
+			const marketSlugs = req.body?.markets;
+
+			if (marketSlugs === undefined) {
+				return res.status(500).json({ error: "No slugs found" });
+			}
+
+			// Initialize array loops
+			let markets = [];
+			let profits = [];
+
+			// Get the market results and do api calls
+			for (const slug of marketSlugs) {
+				markets.push(await marketsAPI(slug));
+			}
+			// Get the profit results
+			for (const market of markets) {
+				profits.push(calculateMarketProfit(market));
+			}
+
+			return res.status(200).json({ profits });
+		} catch (error) {
+			if (error instanceof Error) {
+				res.status(500).json({ error: error.message });
+			} else {
+				res.status(500).json({ error: "Cannot get market slug" });
+			}
+		}
+	}
+
+	// This method is used to get the price history
+	public async getPriceHistoryController(
+		req: Request,
+		res: Response
+	): Promise<void> {
+		const { eventId } = req.params;
+
+		try {
+			const [event] = await eventsAPI({ id: eventId });
+
+			if (!event.markets || event.markets.length === 0) {
+				res
+					.status(404)
+					.json({ error: `No markets found for event ${eventId}` });
+				return;
+			}
+
+			for (const market of event.markets) {
+				try {
+					const clobTokenIds = validateMarket(market);
+					const startTs = convertDateToUnix(new Date(market.startDateIso));
+					const endTs = convertDateToUnix(new Date(market.endDateIso));
+
+					// Fetch and assign price history data
+					market.priceHistory = await getMarketPriceHistory(
+						clobTokenIds,
+						startTs,
+						endTs
+					);
+				} catch (error) {
+					res.status(404).json({ error: error });
+					return;
+				}
+			}
+
+			// Construct response using the Event and Market interfaces
+
+			const eventData = transformEventData(event);
 	public async getPriceHistoryController(req: Request, res: Response): Promise<void> {
     const { eventSlug } = req.params;
 

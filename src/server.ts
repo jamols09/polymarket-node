@@ -46,7 +46,7 @@ server.listen(PORT, () => {
  * This cron job will run every 10 minutes
  * This is where you will put the code to generate the target reports
  */
-cron.schedule("*/10 * * * *", generateCronJob);
+// cron.schedule("*/10 * * * *", generateCronJob);
 /*
  * Websocket setup
  */
