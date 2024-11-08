@@ -66,7 +66,7 @@ export const transformEventData = (event: any): Event => {
           bestAsk: market.bestAsk,
           automaticallyActive: market.automaticallyActive,
           clearBookOnStart: market.clearBookOnStart,
-          priceHistory: market.priceHistory,
+          price_history: market.priceHistory,
       })),
     };
 }

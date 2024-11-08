@@ -10,11 +10,7 @@ import {
 	marketsAPI,
 	priceHistoryAPI,
 } from "../api/polymarket";
-import {
-	getMarketPriceHistory,
-	validateMarket,
-	convertDateToUnix,
-} from "../services/marketPriceHistory";
+import { formatPriceHistory } from "../services/marketPriceHistory"
 import {
 	ApiCreds,
 	ApiKeyCreds,
@@ -330,12 +326,27 @@ class Polymarket {
 			// Construct response using the Event and Market interfaces
 
 			const eventData = transformEventData(event);
+	public async getPriceHistoryController(req: Request, res: Response): Promise<void> {
+    const { eventSlug } = req.params;
 
-			// Send the typed response
-			res.status(200).json(eventData);
-		} catch (error) {
-			res.status(500).json({ error: "Failed to get market or price history" });
-		}
+    try {
+        const events = await eventsAPI({
+					actice: true, 
+					order: 'slug', 
+					ascending: false, 
+					... (eventSlug ? { slug: eventSlug } : {})
+				});
+
+        const eventData = await Promise.all(events.map(async(event: any) => {
+					return await formatPriceHistory(event);
+        }));
+
+        // Send the typed response
+        res.status(200).json(eventData);
+    } catch (error) {
+        console.error('Error occurred:', error);
+        res.status(500).json({ error: "Failed to get market or price history" });
+    }
 	}
 
 	public async setAccount(req: Request, res: Response) {

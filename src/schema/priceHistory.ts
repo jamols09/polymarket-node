@@ -76,7 +76,7 @@ export interface Market {
   bestAsk: number;
   automaticallyActive: boolean;
   clearBookOnStart: boolean;
-  priceHistory: OutcomePriceHistory[];
+  price_history: OutcomePriceHistory[];
 }
 
 export interface Event {
